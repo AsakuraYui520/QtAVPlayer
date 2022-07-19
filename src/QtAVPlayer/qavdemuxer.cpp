@@ -32,6 +32,8 @@
 
 #if defined(Q_OS_WIN)
 #include "qavhwdevice_d3d11_p.h"
+#include "qavhwdevice_dxva2_p.h"
+#include "qavhwdevice_qsv_p.h"
 #endif
 
 #if defined(Q_OS_ANDROID)
@@ -147,8 +149,24 @@ static void setup_video_codec(AVStream *stream, QAVCodec *base)
         devices.append(QSharedPointer<QAVHWDevice>(new QAVHWDevice_VideoToolbox));
 #endif
 #if defined(Q_OS_WIN)
-    if (name == QLatin1String("windows"))
-        devices.append(QSharedPointer<QAVHWDevice>(new QAVHWDevice_D3D11));
+    if (name == QLatin1String("windows")){
+        if (qEnvironmentVariableIsSet("QT_AVPLAYER_PREFERRED_HWDEVICE")){
+            QString hw_device_name = qEnvironmentVariable("QT_AVPLAYER_PREFERRED_HWDEVICE");
+            if(hw_device_name == "DXVA2")
+                devices.append(QSharedPointer<QAVHWDevice>(new QAVHWDevice_DXVA2));
+            else if(hw_device_name == "D3D11")
+                devices.append(QSharedPointer<QAVHWDevice>(new QAVHWDevice_D3D11));
+            else if(hw_device_name == "QSV")
+                devices.append(QSharedPointer<QAVHWDevice>(new QAVHWDevice_QSV));                
+            else
+                devices.append(QSharedPointer<QAVHWDevice>(new QAVHWDevice_D3D11));
+        }
+        else{
+            devices.append(QSharedPointer<QAVHWDevice>(new QAVHWDevice_D3D11));
+            devices.append(QSharedPointer<QAVHWDevice>(new QAVHWDevice_DXVA2));
+            devices.append(QSharedPointer<QAVHWDevice>(new QAVHWDevice_QSV));
+        }
+    }
 #endif
 #if defined(Q_OS_ANDROID)
     if (name == QLatin1String("android")) {

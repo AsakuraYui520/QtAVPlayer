@@ -18,8 +18,12 @@ QT_BEGIN_NAMESPACE
 QAVVideoFrame::MapData QAVVideoBuffer_GPU::map() const
 {
     int ret = av_hwframe_transfer_data(m_cpu.frame().frame(), m_frame.frame(), 0);
-    if (ret < 0)
+    if (ret < 0) {
+        char errStr[256] = { 0 };
+        av_strerror(ret, errStr, sizeof(errStr));
+        qWarning() << __FUNCTION__ << "av_hwframe_transfer_data failed:" << errStr;
         return {};
+    }
 
     const_cast<QAVVideoBuffer_GPU*>(this)->m_frame = QAVVideoFrame();
     return m_cpu.map();

@@ -41,6 +41,9 @@ public:
 
     QAVVideoBuffer &videoBuffer() const
     {
+        if(buffer && q_ptr->frame() != buffer->frame().frame())
+            const_cast<QAVVideoFramePrivate*>(this)->buffer.reset();
+
         if (!buffer) {
             auto c = videoCodec(stream.codec().data());
             auto buf = c && c->device() && frame->format == c->device()->format() ? c->device()->videoBuffer(*q_ptr) : new QAVVideoBuffer_CPU(*q_ptr);
@@ -136,6 +139,11 @@ QAVVideoFrame QAVVideoFrame::convertTo(AVPixelFormat fmt) const
         return *this;
 
     auto mapData = map();
+    if (mapData.size == 0) {
+        qWarning() << __FUNCTION__ << ": Could not map frame:" << av_pix_fmt_desc_get(AVPixelFormat(frame()->format))->name;
+        return QAVVideoFrame();
+    }
+
     auto ctx = sws_getContext(size().width(), size().height(), mapData.format,
                               size().width(), size().height(), fmt,
                               SWS_BICUBIC, NULL, NULL, NULL);
@@ -298,6 +306,7 @@ QAVVideoFrame::operator QVideoFrame() const
 #endif
             break;
         case AV_PIX_FMT_D3D11:
+        case AV_PIX_FMT_DXVA2_VLD:
         case AV_PIX_FMT_VIDEOTOOLBOX:
         case AV_PIX_FMT_NV12:
             format = VideoFrame::Format_NV12;

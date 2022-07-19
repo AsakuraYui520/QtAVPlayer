@@ -98,6 +98,10 @@ macos|darwin {
 win32 {
     PRIVATE_HEADERS += qavhwdevice_d3d11_p.h
     SOURCES += qavhwdevice_d3d11.cpp
+    PRIVATE_HEADERS += qavhwdevice_dxva2_p.h
+    SOURCES += qavhwdevice_dxva2.cpp
+    PRIVATE_HEADERS += qavhwdevice_qsv_p.h
+    SOURCES += qavhwdevice_qsv.cpp    
 }
 
 qtConfig(vdpau) {
