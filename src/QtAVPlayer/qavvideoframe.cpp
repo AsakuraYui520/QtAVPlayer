@@ -46,6 +46,8 @@ public:
             auto buf = c && c->device() && frame->format == c->device()->format() ? c->device()->videoBuffer(*q_ptr) : new QAVVideoBuffer_CPU(*q_ptr);
             const_cast<QAVVideoFramePrivate*>(this)->buffer.reset(buf);
         }
+        else
+            const_cast<QAVVideoFrame&>(buffer->frame()) = *q_ptr;
 
         return *buffer;
     }
