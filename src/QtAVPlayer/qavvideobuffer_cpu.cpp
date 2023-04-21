@@ -14,7 +14,7 @@ extern "C" {
 
 QT_BEGIN_NAMESPACE
 
-QAVVideoFrame::MapData QAVVideoBuffer_CPU::map() const
+QAVVideoFrame::MapData QAVVideoBuffer_CPU::map()
 {
     QAVVideoFrame::MapData mapData;
     auto frame = m_frame.frame();
